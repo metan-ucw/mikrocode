@@ -1,4 +1,4 @@
-SUBDIRS=blink generator
+SUBDIRS=blink generator ds1307_test
 
 .PHONY: $(SUBDIRS)
 
