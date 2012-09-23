@@ -1,3 +1,25 @@
+/*****************************************************************************
+ * This file is part of uClib library.                                       *
+ *                                                                           *
+ * uClib project is free software; you can redistribute it and/or            *
+ * modify it under the terms of the GNU Lesser General Public                *
+ * License as published by the Free Software Foundation; either              *
+ * version 2.1 of the License, or (at your option) any later version.        *
+ *                                                                           *
+ * uClib is distributed in the hope that it will be useful,                  *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
+ * Lesser General Public License for more details.                           *
+ *                                                                           *
+ * You should have received a copy of the GNU Lesser General Public          *
+ * License along with uClib; if not, write to the Free Software              *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor,                        *
+ * Boston, MA  02110-1301  USA                                               *
+ *                                                                           *
+ * Copyright (C) 2009-2012 Cyril Hrubis <metan@ucw.cz>                       *
+ *                                                                           *
+ *****************************************************************************/
+
 /*
  * This provides simple bussy loop sleep functionality, these functions are not
  * 100% correct and can't be used incrementally for example for clock loop but
@@ -9,7 +31,6 @@
 #ifndef __SLEEP_H__
 #define __SLEEP_H__
 
-/* To be sure to have uint16_t */
 #include <stdint.h>
 
 /*
