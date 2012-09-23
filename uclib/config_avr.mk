@@ -1,14 +1,28 @@
 OBJECTS=$(SOURCES:.c=.o)
+DEPFILES=$(SOURCES:.c=.dep)
 
 #
 # Main target for AVR MCU is hex file
 #
-all: $(BINARY).hex
+all: $(BINARY).hex $(DEPFILES)
 
 #
 # Include compiler settings and rule
 #
 include $(LIBDIR)compiler_avr.mk
+
+#
+# Automatic dependecies
+#
+-include $(DEPFILES)
+
+$(DEPFILES): %.dep: %.c
+ifdef VERBOSE
+	$(CC) -MM $(CFLAGS) $(INCLUDE) $< -o $@
+else
+	@ echo "DEP  $@"
+	@ $(CC) -MM $(CFLAGS) $(INCLUDE) $< -o $@
+endif
 
 #
 # Include library build rules
@@ -45,7 +59,7 @@ disasm: $(BINARY).ld
 #
 include $(LIBDIR)loader_avr.mk
 	
-CLEAN+=$(LIBBUILDDIR) $(BINARY).ld $(BINARY).hex $(OBJECTS)
+CLEAN+=$(LIBBUILDDIR) $(BINARY).ld $(BINARY).hex $(OBJECTS) $(DEPFILES)
 
 clean:
 ifndef VERBOSE
