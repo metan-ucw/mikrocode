@@ -25,6 +25,9 @@ INCLUDE+=-I$(LIBPREFIX)/include/generic
 INCLUDE+=-I$(LIBPREFIX)/include/$(MCU_ARCH)/generic
 
 # TODO: MCU specific include here
+ifeq ($(MCU),atmega8)
+INCLUDE+=-I$(LIBPREFIX)/include/$(MCU_ARCH)/$(MCU)
+endif
 
 #
 # Compiler rule
