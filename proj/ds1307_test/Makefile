@@ -1,4 +1,4 @@
-LIBDIR=../../uclib/
+LIBDIR=../../mclib/
 
 BINARY=ds1307_test
 SOURCES=ds1307_test.c

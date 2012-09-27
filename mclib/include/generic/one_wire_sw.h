@@ -20,63 +20,45 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+ /*
+  
+   Software 1-wire implementation see one_wire_sw.c for details.
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+  */
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+#ifndef __ONE_WIRE_SW_H__
+#define __ONE_WIRE_SW_H__
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+#include <stdint.h>
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+/*
+ * Resets one wire bus.
+ *
+ * Returns:
+ * 0 on success
+ * 1 on no presence
+ * 2 on bus always low
+ */
+uint8_t one_wire_sw_reset(void);
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
+/*
+ * Reads one bit. Returns 0 or 1.
+ */
+uint8_t one_wire_sw_read_bit(void);
 
-static void display_write(uint8_t data)
-{
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+/*
+ * Reads byte.
+ */
+uint8_t one_wire_sw_read(void);
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+/*
+ * Writes one bit.
+ */
+void one_wire_sw_write_bit(uint8_t byte);
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
+/*
+ * Writes byte.
+ */
+void one_wire_sw_write(uint8_t byte);
 
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
-}
-
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
-}
-
-/* including this driver is generated */
-#include "hd44780u.c"
+#endif /* __ONE_WIRE_SW_H__ */

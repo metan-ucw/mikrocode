@@ -1,7 +1,0 @@
-uClib
-^^^^^
-
-The uClib library is a collection of common snippets of code and build rules for MCUs.
-
-All you need to do to reuse the library code is to create directory and simple
-Makefile. To see the structure look at the example blink project.

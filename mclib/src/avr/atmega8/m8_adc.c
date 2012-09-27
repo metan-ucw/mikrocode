@@ -20,63 +20,63 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#include <avr/io.h>
+#include "m8_adc.h"
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
-
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
-
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
-
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
-
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
+uint16_t m8_adc_read(uint8_t channel)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+	uint8_t l, h;
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+	/*
+	 * Select channel
+	 */
+	ADMUX  |= channel;
+	
+	/*
+	 * Start single run conversion
+	 */
+	ADCSRA |= M8_ADC_SC;
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
+	/*
+	 * Wait for result
+	 */
+	while (ADCSRA & M8_ADC_SC);
 
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	/*
+	 * ADCL must be read first,
+	 * because ADCH is blocked for
+	 * writing bewten ADCL and ADCH
+	 * read
+	 */
+	l = ADCL;
+	h = ADCH;
+
+	/* 
+	 * Unselect channel
+	 */
+	ADMUX &= ~channel;
+
+	return (uint16_t) l | (h<<8);
 }
 
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+void m8_adc_set(uint8_t adcsra, uint8_t admux)
+{ 
+	ADCSRA=adcsra;
+	ADMUX=admux;
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+void m8_adc_start(uint8_t adcsra, uint8_t admux)
+{ 
+	ADCSRA=adcsra|M8_ADC_EN;
+	ADMUX=admux;
+}
+
+void m8_adc_on(void)
+{
+	ADCSRA |= M8_ADC_EN;
+}
+
+void m8_adc_off(void)
+{
+	ADCSRA &= ~M8_ADC_EN;
+}

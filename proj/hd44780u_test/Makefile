@@ -1,4 +1,4 @@
-LIBDIR=../../uclib/
+LIBDIR=../../mclib/
 
 BINARY=hd44780u_test
 SOURCES=hd44780u_test.c

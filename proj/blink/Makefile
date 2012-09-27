@@ -1,4 +1,4 @@
-LIBDIR=../../uclib/
+LIBDIR=../../mclib/
 
 BINARY=blink
 SOURCES=blink.c

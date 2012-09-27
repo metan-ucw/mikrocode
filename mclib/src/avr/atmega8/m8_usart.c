@@ -20,63 +20,42 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#include "m8_usart.h"
+#include "cpu_speed.h"
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
-
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
-
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
-
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
-
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
+void m8_usart_init(uint16_t baud)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+	uint16_t prescaler = ((uint32_t)1000*CPU_SPEED)/16/baud-1;
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+	/* set UBRR prescaler */
+	UBRRH = (uint8_t) (prescaler>>8);
+	UBRRL = (uint8_t) prescaler;
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	/* enable TX a RX */
+	UCSRB = (1<<RXEN) | (1<<TXEN);
+	
+	/* async, 8bit, no parity, 1 stop bit */
+	UCSRC = (1<<URSEL)|(3<<UCSZ0);
 }
 
-static void display_io_init(void)
+void m8_usart_putc(char c)
 {
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
+	/* wait for empty buffer */
+	while (!(UCSRA & (1<<UDRE)));
 
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+	UDR = c;
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+char m8_usart_getc(void)
+{
+	/* wait for data */
+	while (!(UCSRA & (1<<RXC)));
+
+	return UDR;
+}
+
+void m8_usart_puts(const char *str)
+{
+	while (*str != '\0')
+		m8_usart_putc(*(str++));
+}

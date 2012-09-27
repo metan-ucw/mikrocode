@@ -20,63 +20,48 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#include "string.h"
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
-
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
-
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
-
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
-
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
+void str_write(void (*write)(char), char *str)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
-
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
-
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	while (*str != '\0')
+		write(*(str++));
 }
 
-static void display_io_init(void)
+void str_uint8_t(char *buf, uint8_t val)
 {
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+	buf[3] = '\0';
+	buf[2] = val % 10 + '0';
+	val /= 10;
+	buf[1] = val % 10 + '0';
+	val /= 10;
+	buf[0] = val + '0';
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+void str_uint16_t(char *buf, uint16_t val)
+{
+	int i;
+	
+	buf[5] = '\0';
+	
+	for (i = 4; i > 0; i--) {
+		buf[i] = val % 10 + '0';
+		val /= 10;
+	}
+
+	buf[0] = val + '0';
+}
+
+void str_uint32_t(char *buf, uint32_t val)
+{
+	int i;
+	
+	buf[10] = '\0';
+	
+	for (i = 9; i > 0; i--) {
+		buf[i] = val % 10 + '0';
+		val /= 10;
+	}
+
+	buf[0] = val + '0';
+}

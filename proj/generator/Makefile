@@ -1,4 +1,4 @@
-LIBDIR=../../uclib/
+LIBDIR=../../mclib/
 
 BINARY=generator
 SOURCES=generator.c

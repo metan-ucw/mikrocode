@@ -20,63 +20,21 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#ifndef __CRC_H__
+#define __CRC_H__
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+#include <stdint.h>
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+/*
+ * 8-bit dallas/maxim CRC for polynomial x^8 + x^5 + x^4 + 1
+ *
+ * The usage is as follows:
+ *
+ * uint8_t crc = 0;
+ *
+ * for all bytes:
+ * 	crc = crc8_dallas(crc, next_byte);
+ */
+uint8_t crc8_dallas(uint8_t crc, uint8_t next);
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
-
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
-
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
-{
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
-
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
-
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
-}
-
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
-}
-
-/* including this driver is generated */
-#include "hd44780u.c"
+#endif /* __CRC_H__ */
