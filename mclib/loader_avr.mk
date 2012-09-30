@@ -34,6 +34,9 @@ show_fuses:
 load_fuses:
 	avrdude -p $(MCU) -c $(PROGRAMMER) $(PROGRAMMER_PARAMS) -U hfuse:w:$(HFUSE):m -U lfuse:w:$(LFUSE):m
 
+prog_shell:
+	avrdude -p $(MCU) -c $(PROGRAMMER) $(PROGRAMMER_PARAMS) -t
+
 check_programmer:
 	avrdude -p $(MCU) -c $(PROGRAMMER) $(PROGRAMMER_PARAMS)
 
