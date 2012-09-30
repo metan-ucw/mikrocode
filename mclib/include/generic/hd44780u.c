@@ -20,7 +20,8 @@
  *                                                                           *
  *****************************************************************************/
 
-#include "sleep.h"
+#include "delay.h"
+
 #include "hd44780u.h"
 
 void send_data(uint8_t data)
@@ -28,18 +29,18 @@ void send_data(uint8_t data)
 #ifdef HD44780U_BUS_WRITE_4B 
 	HD44780U_BUS_WRITE_4B(data);
 	HD44780U_BUS_E_ON;
-	sleep_us(2000);
+	delay_us(2000);
 	HD44780U_BUS_E_OFF;
 	
 	HD44780U_BUS_WRITE_4B(data<<4);
 	HD44780U_BUS_E_ON;
-	sleep_us(2000);
+	delay_us(2000);
 	HD44780U_BUS_E_OFF;
 #else
 #ifdef HD44780U_BUS_WRITE_8B
 	HD44780U_BUS_WRITE_8B(data);
 	HD44780U_BUS_E_ON;
-	sleep_us(2000);
+	delay_us(2000);
 	HD44780U_BUS_E_OFF;
 #else
 #error HD44780U_BUS_WRITE_4B or HD44780U_BUS_WRITE_8B must be defined
@@ -63,29 +64,29 @@ void hd44780u_init(void)
 	HD44780U_BUS_RW_OFF;
 	HD44780U_BUS_RS_OFF;
 	
-	sleep_ms(16);
+	delay_ms(16);
 
 	/* Init sequence */
 	HD44780U_BUS_WRITE(0x30);
 	HD44780U_BUS_E_ON;
-	sleep_ms(5);
+	delay_ms(5);
 	HD44780U_BUS_E_OFF;
 
 	HD44780U_BUS_WRITE(0x30);
 	HD44780U_BUS_E_ON;
-	sleep_us(100);
+	delay_us(100);
 	HD44780U_BUS_E_OFF;
 	
 	HD44780U_BUS_WRITE(0x30);
 	HD44780U_BUS_E_ON;
-	sleep_us(100);
+	delay_us(100);
 	HD44780U_BUS_E_OFF;
 
 	/* Initalize 4bit/8bit mode */
 	#ifdef HD44780U_BUS_WRITE_4B
 		HD44780U_BUS_WRITE(0x20);
 		HD44780U_BUS_E_ON;
-		sleep_us(64);
+		delay_us(64);
 		HD44780U_BUS_E_OFF;
 		
 		/*

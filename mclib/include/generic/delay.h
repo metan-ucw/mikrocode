@@ -20,21 +20,21 @@
  *                                                                           *
  *****************************************************************************/
 
-#ifndef __CPU_SPEED_H__
-#define __CPU_SPEED_H__
+ /*
+  
+   Bussy loop delay.
+
+  */
+
+#ifndef __DELAY_H__
+#define __DELAY_H__
 
 #include <stdint.h>
 
-#ifndef CPU_SPEED
-#define CPU_SPEED _cpu_speed
+void delay_us(uint16_t us);
 
-extern uint16_t _cpu_speed;
+void delay_ms(uint16_t ms);
 
-/*
- * Sets crystal speed in kHz
- */
-void set_cpu_speed(uint16_t speed);
+void delay_s(uint8_t s);
 
-#endif /* CPU_SPEED */
-
-#endif /* __CPU_SPEED_H__ */
+#endif  /* __DELAY_H__ */

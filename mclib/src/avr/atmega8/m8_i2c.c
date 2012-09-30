@@ -21,8 +21,10 @@
  *****************************************************************************/
 
 #include <avr/io.h>
+
+#include "cpu_freq.h"
+
 #include "m8_i2c.h"
-#include "cpu_speed.h"
 
 void m8_i2c_init(void)
 {

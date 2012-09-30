@@ -22,15 +22,13 @@
 
 #include <avr/io.h>
 
-#include "cpu_speed.h"
-#include "sleep.h"
+#include "cpu_freq.h"
+
+#include "delay.h"
 #include "utils.h"
 
 int main(void)
 {
-	/* 1Mhz */
-	set_cpu_speed(1000);
-	
 	/*
 	 * Set pin as output.
 	 */
@@ -41,9 +39,9 @@ int main(void)
 	 */
 	for(;;) {
 		SET_BIT(PORTB, PB0);
-		sleep_ms(100);
+		delay_us(100);
 		RESET_BIT(PORTB, PB0);
-		sleep_ms(500);
+		delay_us(100);
 	}
 
 	return 0;

@@ -20,12 +20,13 @@
  *                                                                           *
  *****************************************************************************/
 
+#include "cpu_freq.h"
+
 #include "m8_usart.h"
-#include "cpu_speed.h"
 
 void m8_usart_init(uint16_t baud)
 {
-	uint16_t prescaler = ((uint32_t)1000*CPU_SPEED)/16/baud-1;
+	uint16_t prescaler = ((uint32_t)1000*CPU_FREQ)/16/baud-1;
 
 	/* set UBRR prescaler */
 	UBRRH = (uint8_t) (prescaler>>8);

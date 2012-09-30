@@ -45,8 +45,7 @@
 
 #include <stdint.h>
 
-#include <avr/io.h>
-#include "utils.h"
+#include "delay.h"
 
 #include "one_wire_sw.h"
 

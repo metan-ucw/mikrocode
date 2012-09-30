@@ -4,9 +4,16 @@
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 OBJDUMP=avr-objdump
-CFLAGS=-mcall-prologues -mmcu=$(MCU) -Wall -W -std=c99 -Os
+CFLAGS+=-mcall-prologues -mmcu=$(MCU) -Wall -W -std=c99 -Os
 # enable dead-code elimination
-LDFLAGS=-Wl,--gc-sections
+LDFLAGS+=-Wl,--gc-sections
+
+#
+# If CPU frequency is set as a static number add it to CFLAGS
+#
+ifdef CPU_FREQ
+CFLAGS+=-DCPU_FREQ=$(CPU_FREQ)
+endif
 
 #
 # Add paths to library headers 

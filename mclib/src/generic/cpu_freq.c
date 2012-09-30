@@ -20,37 +20,15 @@
  *                                                                           *
  *****************************************************************************/
 
-#include "cpu_speed.h"
-#include "sleep.h"
+#include "cpu_freq.h"
 
-//TODO: sbiw is not on some ATtiny cpus
-static void delay(uint16_t time)
+#ifdef CPU_FREQ_VAR
+
+uint16_t _cpu_freq;
+
+void set_cpu_freq(uint16_t freq)
 {
-	__asm__ volatile (
-		"1: sbiw %0,1" "\n\t"
-		"brne 1b"
-		: "=w" (time)
-		: "0" (time)
-	);
+	_cpu_freq = freq;
 }
 
-void sleep_ms(uint16_t time)
-{
-	uint16_t i;
-
-	for (i = 0; i < CPU_SPEED/4; i++)
-		delay(time - 2);
-}
-
-void sleep_us(uint16_t time)
-{
-	delay((CPU_SPEED/1000) * time / 4);
-}
-
-void sleep_s(uint8_t time)
-{
-	uint8_t i;
-	
-	for (i = 0;i < time; i++)
-		sleep_ms(1000);
-}
+#endif /* CPU_FREQ_VAR */

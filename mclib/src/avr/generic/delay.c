@@ -20,35 +20,38 @@
  *                                                                           *
  *****************************************************************************/
 
-/*
- * This provides simple bussy loop sleep functionality, these functions are not
- * 100% correct and can't be used incrementally for example for clock loop but
- * are precise enough to be used as wait loop for hardware initalization and
- * because of set_crystal_speed() are independent from crystal.
- *
- */
+#include "cpu_freq.h"
 
-#ifndef __SLEEP_H__
-#define __SLEEP_H__
+#include "delay.h"
 
-#include <stdint.h>
+//TODO: sbiw is not on some ATtiny cpus
+static void delay(uint16_t time)
+{
+	__asm__ volatile (
+		"1: sbiw %0,1" "\n\t"
+		"brne 1b"
+		: "=w" (time)
+		: "0" (time)
+	);
+}
 
-/*
- * Sleep for time in seconds. Maximal time
- * is 256 seconds.
- */
-void sleep_s(uint8_t time);
+void delay_ms(uint16_t time)
+{
+	uint16_t i;
 
-/*
- * Sleeps for time miliseconds. Maximal time is
- * about 2^16/10^3 = aprox. 65 seconds.
- */
-void sleep_ms(uint16_t time);
+	for (i = 0; i < CPU_FREQ/4; i++)
+		delay(time - 2);
+}
 
-/*
- * Sleeps for time in micro seconds.
- */
-void sleep_us(uint16_t time);
+void delay_us(uint16_t time)
+{
+	delay((CPU_FREQ/1000) * time / 4);
+}
 
-
-#endif /* __SLEEP_H__ */
+void delay_s(uint8_t s)
+{
+	uint8_t i;
+	
+	for (i = 0; i < s; i++)
+		delay_ms(1000);
+}

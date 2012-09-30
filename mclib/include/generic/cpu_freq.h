@@ -20,11 +20,24 @@
  *                                                                           *
  *****************************************************************************/
 
-#include "cpu_speed.h"
+#ifndef __CPU_FREQ_H__
+#define __CPU_FREQ_H__
 
-uint16_t _cpu_speed;
+#include <stdint.h>
 
-void set_cpu_speed(uint16_t speed)
-{
-	_cpu_speed = speed;
-}
+#ifndef CPU_FREQ
+#define CPU_FREQ _cpu_freq
+
+/* CPU freqency is variable */
+#define CPU_FREQ_VAR
+
+extern uint16_t _cpu_freq;
+
+/*
+ * Sets crystal speed in kHz
+ */
+void set_cpu_freq(uint16_t speed);
+
+#endif /* CPU_FREQ */
+
+#endif /* __CPU_FREQ_H__ */
