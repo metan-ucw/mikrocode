@@ -31,6 +31,7 @@
 
   */
 
+#include "delay.h"
 #include "one_wire.h"
 #include "crc.h"
 #include "ds18b20.h"
