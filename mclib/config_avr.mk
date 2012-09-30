@@ -4,7 +4,7 @@ DEPFILES=$(SOURCES:.c=.dep)
 #
 # Main target for AVR MCU is hex file
 #
-all: $(BINARY).hex $(DEPFILES)
+all: $(BINARY).hex
 
 #
 # Include compiler settings and rule
