@@ -30,6 +30,12 @@
 int main(void)
 {
 	/*
+	 * Set CPU freq to 1Mhz, comment this out and uncomment CPU_FREQ in
+	 * Makefile to define CPU frequency statically.
+	 */
+	set_cpu_freq(1000);
+
+	/*
 	 * Set pin as output.
 	 */
 	SET_BIT(DDRB, PB0);

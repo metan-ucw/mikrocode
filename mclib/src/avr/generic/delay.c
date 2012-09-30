@@ -39,13 +39,18 @@ void delay_ms(uint16_t time)
 {
 	uint16_t i;
 
-	for (i = 0; i < CPU_FREQ/4; i++)
+	for (i = 0; i < CPU_FREQ_DIV_4; i++)
 		delay(time - 2);
 }
 
 void delay_us(uint16_t time)
 {
-	delay((CPU_FREQ/1000) * time / 4);
+#ifdef CPU_FREQ_VAR
+	#warning microsecond sleep does not yet work with variable CPU_FREQ
+	delay(((CPU_FREQ/1000) * time) / 4);
+#else
+	delay(((CPU_FREQ/1000) * time) / 4);
+#endif
 }
 
 void delay_s(uint8_t s)

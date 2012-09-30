@@ -26,17 +26,26 @@
 #include <stdint.h>
 
 #ifndef CPU_FREQ
-#define CPU_FREQ _cpu_freq
+
+# define CPU_FREQ _cpu_freq
+# define CPU_FREQ_DIV_4 _cpu_freq_div_4
 
 /* CPU freqency is variable */
-#define CPU_FREQ_VAR
+# define CPU_FREQ_VAR
 
 extern uint16_t _cpu_freq;
+
+/* CPU freqency divided by 4 */
+extern uint16_t _cpu_freq_div_4;
 
 /*
  * Sets crystal speed in kHz
  */
 void set_cpu_freq(uint16_t speed);
+
+#else
+
+# define CPU_FREQ_DIV_4 (CPU_FREQ/4)
 
 #endif /* CPU_FREQ */
 

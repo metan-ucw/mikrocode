@@ -25,10 +25,12 @@
 #ifdef CPU_FREQ_VAR
 
 uint16_t _cpu_freq;
+uint16_t _cpu_freq_div_4;
 
 void set_cpu_freq(uint16_t freq)
 {
-	_cpu_freq = freq;
+	_cpu_freq       = freq;
+	_cpu_freq_div_4 = freq / 4;
 }
 
 #endif /* CPU_FREQ_VAR */
