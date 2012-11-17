@@ -22,8 +22,7 @@
 
 #include <avr/io.h>
 #include <utils.h>
-#include <cpu_speed.h>
-#include <sleep.h>
+#include <delay.h>
 #include "hd44780u_display.h"
 
 /*
@@ -43,9 +42,6 @@ HD44780U_USERCHAR_COMPOSE(0, 0, 0, 0, 0),
 int main(void)
 {
 	int i;
-
-	/* 1Mhz */
-	set_cpu_speed(1000);
 
 	/* turn PB1 to be output */
 	SET_BIT(DDRB, PB1);
@@ -71,9 +67,9 @@ int main(void)
 	 */
 	for(;;) {
 		SET_BIT(PORTB, PB1);
-		sleep_ms(100);
+		delay_ms(100);
 		RESET_BIT(PORTB, PB1);
-		sleep_ms(500);
+		delay_ms(500);
 		hd44780u_cmd(HD44780U_DISPLAY_SHIFT_LEFT);
 	}
 
