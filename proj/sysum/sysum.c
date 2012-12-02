@@ -191,11 +191,11 @@ int main(void)
 	SET_BIT(DDRC, PC4);
 
 	/* initialize serial communication */
-	m8_usart_init(9600);
+	m8_usart_init(19200);
 
 	/* initialize refresh timer */
 	m8_timer0_int_on();
-	m8_timer0_source(M8_TMR0_CLK_DIV_256);
+	m8_timer0_source(M8_TMR0_CLK_DIV_64);
 
 	/* turn on interrupts */
 	sei();
