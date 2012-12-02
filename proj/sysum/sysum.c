@@ -25,18 +25,20 @@
 
 #include <delay.h>
 #include <utils.h>
+
 #include <m8_timer0.h>
+#include <m8_usart.h>
 
 static uint8_t buffer[10][4] = {
 	{1, 1, 1, 1},
-	{0, 0, 0, 0},
 	{1, 1, 1, 1},
-	{0, 0, 0, 0},
 	{1, 1, 1, 1},
+	{1, 1, 1, 0},
+	{0, 1, 1, 0},
+	{0, 1, 0, 0},
+	{0, 1, 0, 0},
 	{0, 0, 0, 0},
-	{1, 1, 1, 1},
 	{0, 0, 0, 0},
-	{1, 1, 1, 1},
 	{0, 0, 0, 0},
 };
 
@@ -44,52 +46,52 @@ static uint8_t cur_col = 0;
 
 static void set_buffer(uint8_t col)
 {
-	if (buffer[9][col])
+	if (buffer[0][col])
 		RESET_BIT(PORTB, PB2);
 	else
 		SET_BIT(PORTB, PB2);
 	
-	if (buffer[8][col])
+	if (buffer[1][col])
 		RESET_BIT(PORTB, PB0);
 	else
 		SET_BIT(PORTB, PB0);
 	
-	if (buffer[7][col])
+	if (buffer[2][col])
 		RESET_BIT(PORTD, PD7);
 	else
 		SET_BIT(PORTD, PD7);
 	
-	if (buffer[6][col])
+	if (buffer[3][col])
 		RESET_BIT(PORTD, PD6);
 	else
 		SET_BIT(PORTD, PD6);
 	
-	if (buffer[5][col])
+	if (buffer[4][col])
 		RESET_BIT(PORTD, PD5);
 	else
 		SET_BIT(PORTD, PD5);
 	
-	if (buffer[4][col])
+	if (buffer[5][col])
 		RESET_BIT(PORTD, PD4);
 	else
 		SET_BIT(PORTD, PD4);
 
-	if (buffer[3][col])
+	if (buffer[6][col])
 		RESET_BIT(PORTD, PD3);
 	else
 		SET_BIT(PORTD, PD3);
 	
-	if (buffer[2][col])
+	if (buffer[7][col])
 		RESET_BIT(PORTD, PD2);
 	else
 		SET_BIT(PORTD, PD2);
 	
-	if (buffer[1][col])
+	if (buffer[8][col])
 		RESET_BIT(PORTC, PC5);
 	else
 		SET_BIT(PORTC, PC5);
 	
-	if (buffer[0][col])
+	if (buffer[9][col])
 		RESET_BIT(PORTC, PC4);
 	else
 		SET_BIT(PORTC, PC4);
@@ -100,28 +102,67 @@ ISR(TIMER0_OVF_vect)
 	switch (cur_col) {
 	case 0:
 		RESET_BIT(PORTC, PC2);
-		set_buffer(1);
-		SET_BIT(PORTC, PC3);
-		cur_col++;
-	break;
-	case 1:
-		RESET_BIT(PORTC, PC3);
 		set_buffer(2);
 		SET_BIT(PORTC, PC1);
 		cur_col++;
 	break;
-	case 2:
+	case 1:
 		RESET_BIT(PORTC, PC1);
+		set_buffer(0);
+		SET_BIT(PORTC, PC3);
+		cur_col++;
+	break;
+	case 2:
+		RESET_BIT(PORTC, PC3);
 		set_buffer(3);
 		SET_BIT(PORTB, PB1);
 		cur_col++;
 	break;
 	case 3:
 		RESET_BIT(PORTB, PB1);
-		set_buffer(0);
+		set_buffer(1);
 		SET_BIT(PORTC, PC2);
 		cur_col = 0;
 	break;
+	}
+}
+
+static uint8_t hex_to_int(uint8_t val)
+{
+	switch (val) {
+	case '0' ... '9':
+		return val - '0';
+	case 'a' ... 'f':
+		return val - 'a' + 10;
+	case 'A' ... 'F':
+		return val - 'A' + 10;
+	}
+		
+	RESET_BIT(PORTC, PC0);
+
+	return 0;
+}
+
+static void val_set(void)
+{
+	uint8_t idx = m8_usart_getc();
+	uint8_t val = m8_usart_getc();
+	uint8_t i;
+
+	idx -= '0';
+
+	if (idx > 3) {
+		RESET_BIT(PORTC, PC0);
+		return;
+	}
+
+	val = hex_to_int(val);
+
+	for (i = 0; i <= 10; i++) {
+		if (i < val)
+			buffer[i][idx] = 1;
+		else
+			buffer[i][idx] = 0;
 	}
 }
 
@@ -149,6 +190,10 @@ int main(void)
 	SET_BIT(DDRC, PC5);
 	SET_BIT(DDRC, PC4);
 
+	/* initialize serial communication */
+	m8_usart_init(9600);
+
+	/* initialize refresh timer */
 	m8_timer0_int_on();
 	m8_timer0_source(M8_TMR0_CLK_DIV_256);
 
@@ -156,10 +201,19 @@ int main(void)
 	sei();
 
 	for(;;) {
-		SET_BIT(PORTC, PC0);
-		delay_ms(50);
-		RESET_BIT(PORTC, PC0);
-		delay_ms(400);
+		char ch = m8_usart_getc();
+
+		switch (ch) {
+		case '1':
+			SET_BIT(PORTC, PC0);
+		break;
+		case '0':
+			RESET_BIT(PORTC, PC0);
+		break;
+		case 's':
+			val_set();
+		break;
+		}
 	}
 
 	return 0;
