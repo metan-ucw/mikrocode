@@ -21,9 +21,11 @@
  *****************************************************************************/
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
-#include "delay.h"
-#include "utils.h"
+#include <delay.h>
+#include <utils.h>
+#include <m8_timer0.h>
 
 static uint8_t buffer[10][4] = {
 	{1, 1, 1, 1},
@@ -37,6 +39,8 @@ static uint8_t buffer[10][4] = {
 	{1, 1, 1, 1},
 	{0, 0, 0, 0},
 };
+
+static uint8_t cur_col = 0;
 
 static void set_buffer(uint8_t col)
 {
@@ -91,13 +95,34 @@ static void set_buffer(uint8_t col)
 		SET_BIT(PORTC, PC4);
 }
 
-static void neg_buffer(void)
+ISR(TIMER0_OVF_vect)
 {
-	int i, j;
-
-	for (i = 0; i < 4; i++)
-		for (j = 0; j < 10; j++)
-			buffer[j][i] = !buffer[j][i];
+	switch (cur_col) {
+	case 0:
+		RESET_BIT(PORTC, PC2);
+		set_buffer(1);
+		SET_BIT(PORTC, PC3);
+		cur_col++;
+	break;
+	case 1:
+		RESET_BIT(PORTC, PC3);
+		set_buffer(2);
+		SET_BIT(PORTC, PC1);
+		cur_col++;
+	break;
+	case 2:
+		RESET_BIT(PORTC, PC1);
+		set_buffer(3);
+		SET_BIT(PORTB, PB1);
+		cur_col++;
+	break;
+	case 3:
+		RESET_BIT(PORTB, PB1);
+		set_buffer(0);
+		SET_BIT(PORTC, PC2);
+		cur_col = 0;
+	break;
+	}
 }
 
 int main(void)
@@ -124,35 +149,17 @@ int main(void)
 	SET_BIT(DDRC, PC5);
 	SET_BIT(DDRC, PC4);
 
-	int cnt = 0;
+	m8_timer0_int_on();
+	m8_timer0_source(M8_TMR0_CLK_DIV_256);
+
+	/* turn on interrupts */
+	sei();
 
 	for(;;) {
-		RESET_BIT(PORTB, PB1);
-		set_buffer(0);
-		SET_BIT(PORTC, PC2);
-		delay_ms(5);
-		
-		RESET_BIT(PORTC, PC2);
-		set_buffer(1);
-		SET_BIT(PORTC, PC3);
-		delay_ms(5);
-	
-		RESET_BIT(PORTC, PC3);
-		set_buffer(2);
-		SET_BIT(PORTC, PC1);
-		delay_ms(5);
-
-		RESET_BIT(PORTC, PC1);
-		set_buffer(3);
-		SET_BIT(PORTB, PB1);
-		delay_ms(5);
-	
-		cnt++;
-
-		if (cnt > 100) {
-			cnt = 0;
-			neg_buffer();
-		}
+		SET_BIT(PORTC, PC0);
+		delay_ms(50);
+		RESET_BIT(PORTC, PC0);
+		delay_ms(400);
 	}
 
 	return 0;
