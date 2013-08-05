@@ -1,4 +1,4 @@
-SUBDIRS=blink generator ds1307_test hd44780u_test
+SUBDIRS=blink generator ds1307_test hd44780u_test thermometer
 
 .PHONY: $(SUBDIRS)
 
