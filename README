@@ -6,7 +6,7 @@ microcontrollers (mostly for AVR family).
 
 The build system is features are:
 
-* Simple to use all that is needed is to set MCU type, path to the microcode
+* Simple to use all that is needed is to set MCU type, path to the Mikrocode
   library and include the Makefile skeleton
 
 * Tracks source code dependencies automatically
@@ -17,4 +17,5 @@ The library itself contains common code for character displays based on hd44780
 software one wire bus, ds18b20 thermomether, AVR bussy loop delays, eeprom
 reading/writing rutines etc..
 
-See example project in proj/blink/ for more.
+See simple example project in proj/blink or all example projects in proj/
+directory for more.
