@@ -1,32 +1,32 @@
 /*****************************************************************************
- * This file is part of mClib library.                                       *
+ * This file is part of Mikrocode library.                                   *
  *                                                                           *
- * mClib project is free software; you can redistribute it and/or            *
+ * Mikrocode project is free software; you can redistribute it and/or        *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
  * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
- * mClib is distributed in the hope that it will be useful,                  *
+ * Mikrocode is distributed in the hope that it will be useful,              *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
  * Lesser General Public License for more details.                           *
  *                                                                           *
  * You should have received a copy of the GNU Lesser General Public          *
- * License along with mClib; if not, write to the Free Software              *
+ * License along with Mikrocode; if not, write to the Free Software          *
  * Foundation, Inc., 51 Franklin Street, Fifth Floor,                        *
  * Boston, MA  02110-1301  USA                                               *
  *                                                                           *
- * Copyright (C) 2009-2012 Cyril Hrubis <metan@ucw.cz>                       *
+ * Copyright (C) 2009-2014 Cyril Hrubis <metan@ucw.cz>                       *
  *                                                                           *
  *****************************************************************************/
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <utils.h>
-#include <cpu_speed.h>
-#include <sleep.h>
-#include <m8_timer0.h>
-#include <m8_usart.h>
+#include "utils.h"
+#include "cpu_freq.h"
+#include "delay.h"
+#include "m8_timer0.h"
+#include "m8_usart.h"
 
 #include "hd44780u_display.h"
 
@@ -55,18 +55,18 @@ static void display_print(void)
 	int i;
 
 	/* compute frequency */
-	uint32_t freq = (uint32_t) 100000 * CPU_SPEED;
+	uint32_t freq = (uint32_t) 100000 * CPU_FREQ;
 	freq /= (uint32_t)(2<<(prescalers_div[prescaler])) * div;
 
 	hd44780u_cmd(HD44780U_RETURN_HOME);
 	str_uint32_t(buf, freq);
-	
+
 	for (i = 0; i < 10; i++)
 		if (buf[i] == '0')
 			buf[i] = ' ';
 		else
 			break;
-	
+
 	/* MHz range */
 	if (freq >= 100000000) {
 		tmp = buf[2];
@@ -101,7 +101,7 @@ static void display_print(void)
 	str_uint16_t(buf, div);
 	hd44780u_puts(buf);
 	hd44780u_puts(" P ");
-	str_uint16_t(buf, 1<<prescalers_div[prescaler]);	
+	str_uint16_t(buf, 1<<prescalers_div[prescaler]);
 	hd44780u_puts(buf);
 }
 
@@ -110,9 +110,6 @@ int main(void)
 	uint8_t speed = 0;
 	uint8_t button = 0;
 	uint8_t inc = 1;
-
-	/* 16Mhz external xtall */
-	set_cpu_speed(16000);
 
 	/* turn PB1 to be output */
 	SET_BIT(DDRB, PB0);
@@ -138,11 +135,11 @@ int main(void)
 	 */
 	hd44780u_init();
 	hd44780u_cmd(HD44780U_CNTL_DISPLAY_ON);
-	
+
 	display_print();
 
-	/* 
-	 * turn on PB0 sleep for 0.5 sec, turn off PB0, sleep
+	/*
+	 * turn on PB0 delay for 0.5 sec, turn off PB0, delay
 	 */
 	for(;;) {
 		if (PIN_OFF(PINB, PB4)) {
@@ -150,13 +147,13 @@ int main(void)
 			display_print();
 			button = 1;
 		}
-		
+
 		if (PIN_OFF(PINB, PB3)) {
 			OCR1A = OCR1A + inc;
 			display_print();
 			button = 1;
 		}
-	
+
 		if (PIN_OFF(PIND, PD2)) {
 			prescaler = (prescaler + 1) % 5;
 			TCCR1B = (1<<WGM12)|prescalers[prescaler];
@@ -177,11 +174,11 @@ int main(void)
 			inc = 1;
 
 		button = 0;
-		
+
 		SET_BIT(PORTB, PB0);
-		sleep_ms(10);
+		delay_ms(10);
 		RESET_BIT(PORTB, PB0);
-		sleep_ms(50);
+		delay_ms(50);
 	}
 
 	return 0;

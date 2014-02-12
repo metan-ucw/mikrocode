@@ -1,4 +1,8 @@
-LIBDIR=../../mclib/
+#
+# This file is part of Mikrocode.
+#
+
+LIBDIR=../../lib/
 
 BINARY=thermometer
 SOURCES=thermometer.c one_wire.c ds18b20.c

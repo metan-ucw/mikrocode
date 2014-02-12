@@ -1,4 +1,8 @@
-SUBDIRS=blink generator ds1307_test hd44780u_test thermometer
+#
+# This file is part of Mikrocode.
+#
+
+SUBDIRS=$(filter-out Makefile,$(wildcard *))
 
 .PHONY: $(SUBDIRS)
 

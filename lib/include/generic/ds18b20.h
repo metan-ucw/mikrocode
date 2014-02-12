@@ -20,63 +20,68 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+ /*
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+   Dallas ds18b20 temperature sensor driver. See ds18b20.c for details.
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+  */
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+#ifndef __DS18B20_H__
+#define __DS18B20_H__
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+#include <stdint.h>
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
+/* Starts temperature conversion */
+#define DS18B20_CONVERT_T 0x44
+/* Requests scratchpad data (8 bytes + CRC) */
+#define DS18B20_READ_SCRATCHPAD 0xbe
 
-static void display_write(uint8_t data)
-{
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+/*
+ * Starts a single conversion.
+ *
+ * The device responds with zero bits until it's done.
+ *
+ * Maximal conversion times:
+ *
+ * resolution     time
+ *    9 bit      93.75 ms
+ *   10 bit      187.5 ms
+ *   11 bit       375 ms
+ *   12 bit       750 ms
+ *
+ *
+ * Returns:
+ * 0 on success
+ * 1 when 1-wire bus reset failed
+ */
+uint8_t ds18b20_conv_t(void);
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+/*
+ * Waits for conversion. The timeout is set to 750 ms.
+ *
+ * The 1-wire bus must not be reset betwen conversion and wait.
+ *
+ * Returns:
+ * 0 on success
+ * 1 on timeout
+ */
+uint8_t ds18b20_conv_wait(void);
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
+/*
+ * Checks if conversion is done.
+ *
+ * The 1-wire bus must not be reset betwen conversion and this.
+ */
+uint8_t ds18b20_conv_done(void);
 
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
-}
+/*
+ * Reads temperature from scratchpad.
+ *
+ * Returns:
+ * 0 on success
+ * 1 when 1-wire bus reset failed
+ * 2 when CRC was wrong
+ */
+uint8_t ds18b20_read_t(int16_t *temp);
 
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
-}
-
-/* including this driver is generated */
-#include "hd44780u.c"
+#endif /* __DS18B20_H__ */

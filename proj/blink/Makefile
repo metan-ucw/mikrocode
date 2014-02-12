@@ -1,4 +1,8 @@
-LIBDIR=../../mclib/
+#
+# This file is part of Mikrocode.
+#
+
+LIBDIR=../../lib/
 
 BINARY=blink
 SOURCES=blink.c

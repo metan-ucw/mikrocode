@@ -1,4 +1,8 @@
-LIBDIR=../../mclib/
+#
+# This file is part of Mikrocode.
+#
+
+LIBDIR=../../lib/
 
 BINARY=hd44780u_test
 SOURCES=hd44780u_test.c

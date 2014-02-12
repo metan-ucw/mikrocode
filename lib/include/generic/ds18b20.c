@@ -20,63 +20,86 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+ /*
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+   The actual code is created by defining following macros and including this
+   file.
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+   ONE_WIRE_READ  - returns byte read from one wire bus
+   ONE_WIRE_WRITE - writes byte to one wire bus
+   ONE_WIRE_RESET - resets the bus (returns 0 on success).
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+  */
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+#include "delay.h"
+#include "one_wire.h"
+#include "crc.h"
+#include "ds18b20.h"
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
+uint8_t ds18b20_conv_t(void)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+	if (ONE_WIRE_RESET)
+		return 1;
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+	/* request conversion */
+	ONE_WIRE_WRITE(ONE_WIRE_SKIP_ROM);
+	ONE_WIRE_WRITE(DS18B20_CONVERT_T);
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	return 0;
 }
 
-static void display_io_init(void)
+uint8_t ds18b20_conv_wait(void)
 {
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
+	uint16_t ms = 0;
 
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+	/* Maximal conversion time is 750 ms (for 12 bit resolution) */
+	while (ONE_WIRE_READ == 0x00 && ms++ <= 750)
+		delay_us(1000);
+
+	return ms > 750;
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+uint8_t ds18b20_conv_done(void)
+{
+	return ONE_WIRE_READ != 0x00;
+}
+
+static uint8_t read_scratchpad(uint8_t *buf)
+{
+	uint8_t i;
+
+	if (ONE_WIRE_RESET)
+		return 1;
+
+	/* request scratchpad */
+	ONE_WIRE_WRITE(ONE_WIRE_SKIP_ROM);
+	ONE_WIRE_WRITE(DS18B20_READ_SCRATCHPAD);
+
+	/* read scratchpad */
+	uint8_t crc = 0;
+
+	for (i = 0; i < 9; i++) {
+		buf[i] = ONE_WIRE_READ;
+		crc = crc8_dallas(crc, buf[i]);
+	}
+
+	/* check scratchpad crc */
+	if (crc != 0)
+		return 2;
+
+	return 0;
+}
+
+uint8_t ds18b20_read_t(int16_t *temp)
+{
+	uint8_t buf[9], ret;
+
+	ret = read_scratchpad(buf);
+
+	if (ret)
+		return ret;
+
+	*temp = (int16_t)buf[0] | (int16_t)buf[1] << 8;
+
+	return 0;
+}

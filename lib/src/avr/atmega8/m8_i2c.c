@@ -20,63 +20,60 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#include <avr/io.h>
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+#include "cpu_freq.h"
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+#include "m8_i2c.h"
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
-
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
-
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
-
-static void display_write(uint8_t data)
+void m8_i2c_init(void)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+//	uint8_t speed = (((uint32_t)1000*CPU_SPEED) - 16) / 2;
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+//	if (CPU_SPEED < 36000)
+//		speed = 10;
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	TWBR = 1;
+	TWSR |= ((1<<TWPS0)|(1<<TWPS1));
+	TWCR |= (1<<TWEN);
 }
 
-static void display_io_init(void)
+void m8_i2c_start(void)
 {
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
+	TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTA);
 
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+	while (!(TWCR & (1<<TWINT)));
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+void m8_i2c_stop(void)
+{
+	TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
+
+	while (!(TWCR & (1<<TWSTO)));
+}
+
+bool m8_i2c_write(uint8_t byte)
+{
+	TWDR = byte;
+
+	TWCR = (1<<TWINT)|(1<<TWEN);
+
+	while (!(TWCR & (1<<TWINT)));
+
+	if ((TWSR & 0xf8) == 0x40 || (TWSR & 0xf8) == 0x18 ||
+	    (TWSR & 0xf8) == 0x28)
+		return true;
+
+	return false;
+}
+
+uint8_t m8_i2c_read(void)
+{
+	uint8_t byte = TWDR;
+
+	TWCR |= (1<<TWEA);
+
+	//TODO Check TWSR
+
+	return byte;
+}

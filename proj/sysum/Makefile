@@ -1,4 +1,8 @@
-LIBDIR=../../mclib/
+#
+# This file is part of Mikrocode.
+#
+
+LIBDIR=../../lib/
 
 BINARY=sysum
 SOURCES=sysum.c
@@ -6,7 +10,7 @@ SOURCES=sysum.c
 MCU=atmega8
 MCU_ARCH=avr
 
-# 8+ Mhz external crystal 
+# 8+ Mhz external crystal
 LFUSE=0xCE
 # default
 HFUSE=0xD9

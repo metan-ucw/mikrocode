@@ -4,8 +4,8 @@ Thermometer
 Uses HD44780U is compatible display controler and ds18b20 one wire sensor with
 sw one wire. Atmega8 runs on internal 8Mhz clock.
 
-Basic connection, consult you display datasheed for pinout and don't forget to
-connect VCC and GND right.
+Consult you display datasheed for pinout and don't forget to connect VCC and
+GND right.
 
          10K
   VCC---/\/\/--- GND

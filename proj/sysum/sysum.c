@@ -1,22 +1,22 @@
 /*****************************************************************************
- * This file is part of mClib library.                                       *
+ * This file is part of Mikrocode library.                                   *
  *                                                                           *
- * mClib project is free software; you can redistribute it and/or            *
+ * Mikrocode project is free software; you can redistribute it and/or        *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
  * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
- * mClib is distributed in the hope that it will be useful,                  *
+ * Mikrocode is distributed in the hope that it will be useful,              *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
  * Lesser General Public License for more details.                           *
  *                                                                           *
  * You should have received a copy of the GNU Lesser General Public          *
- * License along with mClib; if not, write to the Free Software              *
+ * License along with Mikrocode; if not, write to the Free Software          *
  * Foundation, Inc., 51 Franklin Street, Fifth Floor,                        *
  * Boston, MA  02110-1301  USA                                               *
  *                                                                           *
- * Copyright (C) 2009-2012 Cyril Hrubis <metan@ucw.cz>                       *
+ * Copyright (C) 2009-2014 Cyril Hrubis <metan@ucw.cz>                       *
  *                                                                           *
  *****************************************************************************/
 
@@ -25,7 +25,6 @@
 
 #include <delay.h>
 #include <utils.h>
-
 #include <m8_timer0.h>
 #include <m8_usart.h>
 
@@ -50,27 +49,27 @@ static void set_buffer(uint8_t col)
 		RESET_BIT(PORTB, PB2);
 	else
 		SET_BIT(PORTB, PB2);
-	
+
 	if (buffer[1][col])
 		RESET_BIT(PORTB, PB0);
 	else
 		SET_BIT(PORTB, PB0);
-	
+
 	if (buffer[2][col])
 		RESET_BIT(PORTD, PD7);
 	else
 		SET_BIT(PORTD, PD7);
-	
+
 	if (buffer[3][col])
 		RESET_BIT(PORTD, PD6);
 	else
 		SET_BIT(PORTD, PD6);
-	
+
 	if (buffer[4][col])
 		RESET_BIT(PORTD, PD5);
 	else
 		SET_BIT(PORTD, PD5);
-	
+
 	if (buffer[5][col])
 		RESET_BIT(PORTD, PD4);
 	else
@@ -80,17 +79,17 @@ static void set_buffer(uint8_t col)
 		RESET_BIT(PORTD, PD3);
 	else
 		SET_BIT(PORTD, PD3);
-	
+
 	if (buffer[7][col])
 		RESET_BIT(PORTD, PD2);
 	else
 		SET_BIT(PORTD, PD2);
-	
+
 	if (buffer[8][col])
 		RESET_BIT(PORTC, PC5);
 	else
 		SET_BIT(PORTC, PC5);
-	
+
 	if (buffer[9][col])
 		RESET_BIT(PORTC, PC4);
 	else
@@ -137,7 +136,7 @@ static uint8_t hex_to_int(uint8_t val)
 	case 'A' ... 'F':
 		return val - 'A' + 10;
 	}
-		
+
 	RESET_BIT(PORTC, PC0);
 
 	return 0;

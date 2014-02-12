@@ -20,63 +20,36 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#ifndef __M8_TIMER0_H__
+#define __M8_TIMER0_H__
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+#include <avr/io.h>
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+/*
+ * TCCR0 lower three bits, select timer source.
+ */
+#define M8_TMR0_CLK_STOP            0x00
+#define M8_TMR0_CLK_DIV_1           0x01
+#define M8_TMR0_CLK_DIV_8           0x02
+#define M8_TMR0_CLK_DIV_64          0x03
+#define M8_TMR0_CLK_DIV_256         0x04
+#define M8_TMR0_CLK_DIV_1024        0x05
+#define M8_TMR0_CLK_T0_FAILING_EDGE 0x06
+#define M8_TMR0_CLK_T0_RISING_EDGE  0x07
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+/*
+ * Select clock soddurce.
+ */
+void m8_timer0_source(uint8_t flag);
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+/*
+ * Turn on overflow interrupt.
+ */
+void m8_timer0_int_on(void);
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
+/*
+ * Turn off overflow interrupt.
+ */
+void m8_timer0_int_off(void);
 
-static void display_write(uint8_t data)
-{
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
-
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
-
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
-}
-
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
-}
-
-/* including this driver is generated */
-#include "hd44780u.c"
+#endif /* __M8_TIMER_H__ */

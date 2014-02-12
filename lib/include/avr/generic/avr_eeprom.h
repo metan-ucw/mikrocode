@@ -20,63 +20,62 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+ /*
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+   AVR internal EEPROM driver code.
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+   Values longer than one byte are read/written starting at selected address
+   and it's your responsibility not to overlap them.
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+  */
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+#ifndef __EEPROM_H__
+#define __EEPROM_H__
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
+#include <stdint.h>
 
-static void display_write(uint8_t data)
+/*
+ * General byte read.
+ */
+uint8_t avr_eeprom_read(uint16_t addr);
+
+/*
+ * General byte write.
+ */
+void avr_eeprom_write(uint16_t addr, uint8_t byte);
+
+/*
+ * More read functions
+ */
+static inline uint8_t avr_eeprom_read_uint8(uint16_t addr)
 {
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
-
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
-
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
-
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
+	return avr_eeprom_read(addr);
 }
 
-static void display_io_init(void)
+static inline int8_t avr_eeprom_read_int8(uint16_t addr)
 {
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
-
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
+	return (int8_t)avr_eeprom_read(addr);
 }
 
-/* including this driver is generated */
-#include "hd44780u.c"
+uint16_t avr_eeprom_read_uint16(uint16_t addr);
+
+int16_t avr_eeprom_read_int16(uint16_t addr);
+
+/*
+ * More write functions
+ */
+static inline void avr_eeprom_write_uint8(uint16_t addr, uint8_t val)
+{
+	avr_eeprom_write(addr, val);
+}
+
+static inline void avr_eeprom_write_int8(uint16_t addr, int8_t val)
+{
+	avr_eeprom_write(addr, (uint8_t)val);
+}
+
+void avr_eeprom_write_uint16(uint16_t addr, uint16_t val);
+
+void avr_eeprom_write_int16(uint16_t addr, int16_t val);
+
+#endif /* __EEPROM_H__ */

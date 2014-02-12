@@ -20,63 +20,33 @@
  *                                                                           *
  *****************************************************************************/
 
-/* display size and type */
-#define HD44780U_COLUMNS 16
-#define HD44780U_LINES   2
+#ifndef __CPU_FREQ_H__
+#define __CPU_FREQ_H__
 
-/* Clock pin */
-#define HD44780U_BUS_E_ON   SET_BIT(PORTB, PB2)
-#define HD44780U_BUS_E_OFF  RESET_BIT(PORTB, PB2)
+#include <stdint.h>
 
-/* Data/Command pin */
-#define HD44780U_BUS_RS_ON  SET_BIT(PORTD, PD3)
-#define HD44780U_BUS_RS_OFF RESET_BIT(PORTD, PD3)
+#ifndef CPU_FREQ
 
-/* Read/Write pin */
-#define HD44780U_BUS_RW_ON
-#define HD44780U_BUS_RW_OFF
+# define CPU_FREQ _cpu_freq
+# define CPU_FREQ_DIV_4 _cpu_freq_div_4
 
-/* Data bus write */
-#define HD44780U_BUS_WRITE_4B display_write
+/* CPU freqency is variable */
+# define CPU_FREQ_VAR
 
-/* Display io init */
-#define HD44780U_IO_INIT display_io_init()
+extern uint16_t _cpu_freq;
 
-static void display_write(uint8_t data)
-{
-        if (data & 0x10)
-                SET_BIT(PORTD, PD4);
-        else
-                RESET_BIT(PORTD, PD4);
+/* CPU freqency divided by 4 */
+extern uint16_t _cpu_freq_div_4;
 
-        if (data & 0x20)
-                SET_BIT(PORTD, PD5);
-        else
-                RESET_BIT(PORTD, PD5);
+/*
+ * Sets crystal speed in kHz
+ */
+void set_cpu_freq(uint16_t speed);
 
-        if (data & 0x40)
-                SET_BIT(PORTD, PD6);
-        else
-                RESET_BIT(PORTD, PD6);
+#else
 
-        if (data & 0x80)
-                SET_BIT(PORTD, PD7);
-        else
-                RESET_BIT(PORTD, PD7);
-}
+# define CPU_FREQ_DIV_4 (CPU_FREQ/4)
 
-static void display_io_init(void)
-{
-	/* control */
-	SET_BIT(DDRD, PD3);
-	SET_BIT(DDRB, PB2);
+#endif /* CPU_FREQ */
 
-	/* data */
-	SET_BIT(DDRD, PD4);
-	SET_BIT(DDRD, PD5);
-	SET_BIT(DDRD, PD6);
-	SET_BIT(DDRD, PD7);
-}
-
-/* including this driver is generated */
-#include "hd44780u.c"
+#endif /* __CPU_FREQ_H__ */
