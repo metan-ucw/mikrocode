@@ -1,0 +1,14 @@
+blink
+-----
+
+Simple example project, connect a led diode with resistor to PB0 pin of your
+favorite AVR microcontroller.
+
+To compile the and load the code:
+
+* Check that Makefile MCU is set to correct type
+* type make
+* Check set correct programmer type in ../../lib/loader_avr.mk
+* type make load
+
+If everything goes well the led should blink.
