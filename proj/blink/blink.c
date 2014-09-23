@@ -45,9 +45,9 @@ int main(void)
 	 */
 	for(;;) {
 		SET_BIT(PORTB, PB0);
-		delay_us(100);
+		delay_ms(100);
 		RESET_BIT(PORTB, PB0);
-		delay_us(100);
+		delay_ms(100);
 	}
 
 	return 0;
